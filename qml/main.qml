@@ -61,24 +61,11 @@ WaylandCompositor {
 
 
 
-
-    Instantiator {
-        id: screens
-        model: Qt.application.screens
-
-        onObjectAdded: {
-            object.index=index
-        }
-
-        delegate: ScreenOutput {
-
-            text: name
-            compositor: comp
-            screen: modelData
-            Component.onCompleted: if (!comp.defaultOutput) comp.defaultOutput = this
-            position: Qt.point(virtualX, virtualY)
-        }
+    ScreenManager{
+        id:screenmanager
     }
+
+
 
     Component {
         id: chromeComponent
@@ -87,41 +74,29 @@ WaylandCompositor {
         }
     }
 
+    ListModel {
+        id: shell_surfaces
+    }
+
     Component {
         id: moveItemComponent
         Item {
-            id:mvitem
-            property int screenval: 0
-            Timer{
-                id:testetimer
-                interval: 3000
-                running: false
-                repeat: true
-                onTriggered: {
 
 
+//            onXChanged: {
+//                console.log("x:"+x)
+////                if(shellSurface.toplevel){
+////                    shellSurface.toplevel.sendMaximized(Qt.size(800,1280))
+////                }
+//            }
 
 
-//                    var w=screens.objectAt(screenval).surfaceArea.width
-//                    var h=screens.objectAt(screenval).surfaceArea.height
+//            com
+            //            screen.toplevel.sendMaximized(Qt.size(w, h));
 
-        //            var screen=screens.objectAt(screenval);
-
-        //            screen.toplevel.sendMaximized(Qt.size(w, h));
-        //            comp.screenval=comp.screenval+1;
-
-        //            if(comp.screenval>=screens.count){
-        //                comp.screenval=0;
-        //            }
-
-
-                }
-            }
-
-
-            Component.onCompleted: {
-                console.log("moveItem on pos:"+x);
-            }
+//            Component.onCompleted: {
+//                console.log("moveItem on pos:"+x);
+//            }
         }
     }
 
@@ -142,31 +117,28 @@ WaylandCompositor {
     XdgShell {
         onToplevelCreated: {
             handleShellSurfaceCreated(xdgSurface)
-
-            console.log("xdgSurface created:"+xdgSurface);
-            // comp.teste=xdgSurface
-//            testetimer.start();
-
         }
+
 
     }
 
 
 
-    function createShellSurfaceItem(shellSurface, moveItem, output) {
-        var parentSurfaceItem = output.viewsBySurface[shellSurface.parentSurface];
-        var parent = parentSurfaceItem || output.surfaceArea;
+    function createShellSurfaceItem(shellSurface, moveItem, screenOutput) {
+        var parentSurfaceItem = screenOutput.viewsBySurface[shellSurface.parentSurface];
+        var parent = parentSurfaceItem || screenOutput.surfaceArea;
         var item = chromeComponent.createObject(parent, {
                                                     "shellSurface": shellSurface,
-                                                    "moveItem": moveItem
+                                                    "moveItem": moveItem,
+                                                    "screenOutput":screenOutput
                                                 });
         if (parentSurfaceItem) {
-            item.x += output.position.x;
-            item.y += output.position.y;
+            item.x += screenOutput.position.x;
+            item.y += screenOutput.position.y;
         }
 
 
-        output.viewsBySurface[shellSurface.surface] = item;
+        screenOutput.viewsBySurface[shellSurface.surface] = item;
 
 
 
@@ -176,27 +148,17 @@ WaylandCompositor {
 
     function handleShellSurfaceCreated(shellSurface) {
 
+        shell_surfaces.append(shellSurface)
 
         var moveItem = moveItemComponent.createObject(rootItem);
 
+        for (var i =0 ;i< screenmanager.screens.count; ++i){
 
 
-//        comp.teste=moveItem;
-
-        for (var i =0 ;i< screens.count; ++i){
-
-            console.log("screen: "+screens.objectAt(i).text+" @ "+i);
-            createShellSurfaceItem(shellSurface, moveItem, screens.objectAt(i));
+            createShellSurfaceItem(shellSurface, moveItem, screenmanager.screens.objectAt(i));
         }
 
 
-        var chrome=screens.objectAt(0).viewsBySurface[shellSurface.surface]
-
-//        if(chrome.output){
-
-//        }
-
-//        console.log(shellSurface.toplevel.Screen.pixelDensity);
 
     }
 }

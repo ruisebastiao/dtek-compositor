@@ -14,4 +14,5 @@ INSTALLS += target
 
 DISTFILES += \
     qml/Chrome.qml \
+    qml/ScreenManager.qml \
     qml/ScreenOutput.qml

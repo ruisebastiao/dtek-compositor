@@ -58,19 +58,29 @@ Item {
     property alias surfaceItem: surfaceItem
     property alias moveItem: surfaceItem.moveItem
 
+    property var screenOutput
+
 
     x: surfaceItem.moveItem.x - surfaceItem.output.geometry.x
     y: surfaceItem.moveItem.y - surfaceItem.output.geometry.y
 
 
 
+
     ShellSurfaceItem {
         id: surfaceItem
         autoCreatePopupItems: true
-        onSurfaceDestroyed: chrome.destroy();
+        onSurfaceDestroyed:{
+            bufferLocked=true
+//            console.log("AppWindow destroyed")
+            chrome.destroy();
+        }
         Component.onCompleted: {
 
+//            console.log("AppWindow created")
         }
+
+
 
 
     }
@@ -81,7 +91,7 @@ Item {
         var w = surfaceItem.width
         var h = surfaceItem.height
 
-//        console.log("w:"+w);
+        //        console.log("w:"+w);
 
         var area = w * h;
         var screenW = surfaceItem.output.geometry.width;
@@ -96,16 +106,20 @@ Item {
         var h1 = Math.max(0, y2 - y1);
         var toplevel=surfaceItem.toplevel;
 
-//        if(toplevel){
+        //        if(toplevel){
 
-//        }
+        //        }
 
         if (w1 * h1 * 2 > area) {
             console.log("surfaceItem primary:"+surfaceItem);
 
-//            surfaceItem.setPrimary();
+            //            surfaceItem.setPrimary();
 
 
         }
+
+//        if(shellSurface.toplevel){
+//            shellSurface.toplevel.sendMaximized(Qt.size(1280,800))
+//        }
     }
 }

@@ -3,5 +3,6 @@
         <file>qml/main.qml</file>
         <file>qml/Chrome.qml</file>
         <file>qml/ScreenOutput.qml</file>
+        <file>qml/ScreenManager.qml</file>
     </qresource>
 </RCC>
